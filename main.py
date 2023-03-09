@@ -1,50 +1,58 @@
+from os import  system
 import logging
 
-logging.basicConfig(level=logging.DEBUG,filename='data.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
+logging.basicConfig(level=logging.DEBUG,filename='data.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 
 
 class BowlingGame:
 
-    NUMBER_OF_FRAMES = 10
-    list_of_frames = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    frames = ['first frame', 'second frame', 'third frame', 'fourth frame', 'fifth frame',
-              'sixth frame', 'seventh frame', 'eighth frame', 'ninth frame', 'tenth frame']
-    list_of_numbers = ['first player', 'second player',
-                       'third player', 'fourth player', 'fifth player', 'sixth player']
-    list_of_throws = ['first throw', 'second throw', 'third throw']
-    players_list: list = []
-    total_score: dict = {}
-    frame_score: dict = {}
-    frame_total_score: dict = {}
-
-    def __init__(self, number_of_frames=NUMBER_OF_FRAMES,) -> None:
-        self.number_of_frames = number_of_frames
-       
-
     def get_number_of_players(self) -> int:
-        number_of_players = int(input('Please enter the number of players (from one to six): '))
-        # try:
-        #     self.get_number_of_players()
-        # except 
-        return number_of_players
-          
+        number_of_players = input('Please enter the number of players (from one to six): ')
+
+        try:
+            players = int(number_of_players)
+            if players >= 1 and players <= 6:
+                logging.info(f'{number_of_players} players entered to play')
+                return players 
+        
+        except ValueError:
+            print(f'You must enter an integer from one to six!')
+            logging.error(f'You must enter an integer from one to six! {number_of_players} is not an integer!')
+            return self.get_number_of_players()
+        else:
+            print(f'You must enter an integer from one to six!')
+            logging.error(f'You must enter an integer from one to six! {number_of_players} is out of range from one to six!')
+            return self.get_number_of_players()
+
 
 class Player(BowlingGame):
+    players_list: list = []
+    list_of_numbers = ['first player', 'second player',
+                       'third player', 'fourth player', 'fifth player', 'sixth player']
 
     def __init__(self) -> None:
-        
-        
         super().__init__()
         self.number_of_players = self.get_number_of_players()
 
     def input_player_names(self) -> list:
         for number in range(self.number_of_players):
-            player = input(f"PLease input {self.list_of_numbers[number]}'s name (first three letters): ").upper()
-            self.players_list.append(player)
+            player_name = input(f"PLease input {self.list_of_numbers[number]}'s name: ").upper()
+            if len(player_name) > 3:
+                player_name = player_name[0:3]
+            self.players_list.append(player_name)
         return (self.players_list)
 
 
 class Frame(Player, BowlingGame):
+    
+    NUMBER_OF_FRAMES = 10
+    list_of_frames = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    frames = ['first frame', 'second frame', 'third frame', 'fourth frame', 'fifth frame',
+              'sixth frame', 'seventh frame', 'eighth frame', 'ninth frame', 'tenth frame']
+    list_of_throws = ['first throw', 'second throw', 'third throw']
+    total_score: dict = {}
+    frame_score: dict = {}
+    frame_total_score: dict = {}
 
     def __init__(self) -> None:
         super().__init__()
@@ -67,8 +75,12 @@ class Frame(Player, BowlingGame):
     def get_total_score(self) -> dict:
         total_score = {player: ' ' for player in self.players_list}
         return total_score
+    
+    def clear_console(self):
+        system('cls')
 
-    def print_empty_table(self) -> None:
+    def print_score_table(self) -> None:
+        self.clear_console()
         print("\n")
         print("\t+-------------+-----------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-----------+-------------+")
         print("\t| Player name |   Frame   |   1   |   2   |   3   |   4   |   5   |   6   |   7   |   8   |   9   |     10    | Total score |")
@@ -133,33 +145,34 @@ class Frame(Player, BowlingGame):
     def count_frame_score(self) -> dict:
         
         frame = 1
-        self.print_empty_table()
+        self.print_score_table()
         for frame in range(1, 11):
             for player in self.players_list:
                 count = 0
                 for throw in self.list_of_throws:
 
-                    self.frame_score[frame][player][throw] = int(
-                        input(f'Enter {self.frames[frame-1]} {player} {throw} score: '))
+                    self.frame_score[frame][player][throw] = int(input(f'Enter {self.frames[frame-1]} {player} {throw} score: '))
+                    # try 
+
                     self.frame_total_score[frame][player] = self.frame_score[frame][player][throw]
 
                     if frame == 1:
                         if self.frame_score[frame][player]['first throw'] == 10:
-                            self.frame_total_score[frame][player] = int(
-                                self.frame_score[frame][player]['first throw'])
+                            self.frame_total_score[frame][player] = int(self.frame_score[frame][player]['first throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
                             self.frame_score[frame][player]['first throw'] = 'X'
                             self.frame_score[frame][player]['second throw'] = ' '
-                            self.print_empty_table()
+                            self.print_score_table()
                             break
 
-                        elif int(self.frame_score[frame][player]['first throw']) != 10 and int(self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw']) == 10:
+                        elif int(self.frame_score[frame][player]['first throw']) != 10 and int(self.frame_score[frame][player]['first throw']) + int(
+                            self.frame_score[frame][player]['second throw']) == 10:
 
                             self.frame_total_score[frame][player] = int(
                                 self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
                             self.frame_score[frame][player]['second throw'] = '/'
-                            self.print_empty_table()
+                            self.print_score_table()
                             count += 1
                             if count == 2:
                                 break
@@ -168,7 +181,7 @@ class Frame(Player, BowlingGame):
                             self.frame_total_score[frame][player] = int(
                                 self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
                             count += 1
                             if count == 2:
                                 break
@@ -183,7 +196,7 @@ class Frame(Player, BowlingGame):
                                 self.frame_total_score[frame-1][player] += int(
                                     self.frame_score[frame][player]['first throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
 
                         if self.frame_score[frame][player]['first throw'] == 10:
                             self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(
@@ -191,7 +204,7 @@ class Frame(Player, BowlingGame):
                             self.frame_score[frame][player]['first throw'] = 'X'
                             self.frame_score[frame][player]['second throw'] = ' '
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
                             break
 
                         elif int(self.frame_score[frame][player]['first throw']) != 10:
@@ -201,7 +214,7 @@ class Frame(Player, BowlingGame):
                             if self.frame_score[frame][player]['first throw'] + int(self.frame_score[frame][player]['second throw']) == 10:
                                 self.frame_score[frame][player]['second throw'] = '/'
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
                             count += 1
                             if count == 2:
                                 break
@@ -210,7 +223,7 @@ class Frame(Player, BowlingGame):
                             self.frame_total_score[frame][player] = int(
                                 self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
                             count += 1
                             if count == 2:
                                 break
@@ -228,35 +241,36 @@ class Frame(Player, BowlingGame):
 
                             self.frame_total_score[frame-1][player] += self.frame_score[frame][player][throw]
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
 
                         if self.frame_score[frame-1][player]['second throw'] == '/':
                             if throw == 'first throw':
                                 self.frame_total_score[frame-1][player] += int(
                                     self.frame_score[frame][player]['first throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
 
                         if self.frame_score[frame][player]['first throw'] == 10:
                             if self.frame_score[frame-1][player]['first throw'] == 'X':
                                 self.frame_total_score[frame-1][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player][throw])
                                 self.total_score[player] = self.frame_total_score[frame][player]
-                                self.print_empty_table()
+                                self.print_score_table()
                             
                             self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw'])
                             self.frame_score[frame][player]['first throw'] = 'X'
                             self.frame_score[frame][player]['second throw'] = ' '
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
                             break
 
                         elif int(self.frame_score[frame][player]['first throw']) != 10:
 
-                            self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
+                            self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + int(
+                                self.frame_score[frame][player]['second throw'])
                             if self.frame_score[frame][player]['first throw'] + int(self.frame_score[frame][player]['second throw']) == 10:
                                 self.frame_score[frame][player]['second throw'] = '/'
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
                             count += 1
                             if count == 2:
                                 break
@@ -264,7 +278,7 @@ class Frame(Player, BowlingGame):
                             self.frame_total_score[frame][player] = int(
                                 self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
-                            self.print_empty_table()
+                            self.print_score_table()
                             count += 1
                             if count == 2:
                                 break
@@ -308,25 +322,29 @@ class Frame(Player, BowlingGame):
                             if throw == 'third throw':
                                 if int(self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw']) == 10:
                                     self.frame_total_score[frame-1][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['second throw'])
-                                    self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + self.frame_score[frame][player]['second throw'] + int(self.frame_score[frame][player]['third throw'])
+                                    self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(
+                                        self.frame_score[frame][player]['first throw']) + self.frame_score[frame][player]['second throw'] + int(
+                                        self.frame_score[frame][player]['third throw'])
                                     if self.frame_score[frame][player]['first throw'] + self.frame_score[frame][player]['second throw'] == 10:
                                         self.frame_score[frame][player]['second throw'] = '/'
                                     if self.frame_score[frame][player]['third throw'] == '0':
                                         self.frame_score[frame][player]['third throw'] = ' '
                                     self.total_score[player] = self.frame_total_score[frame][player]
-                                    self.print_empty_table()
+                                    self.print_score_table()
                                     break
 
                             if self.frame_score[frame-1][player]['first throw'] == 'X':
-                                self.frame_total_score[frame-1][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
+                                self.frame_total_score[frame-1][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + int(
+                                    self.frame_score[frame][player]['second throw'])
                                 
-                            self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
+                            self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + int(
+                                self.frame_score[frame][player]['second throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
 
                             if throw == 'second throw':
                                 if int(self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw']) != 10:
                                     self.frame_score[frame][player]['third throw'] = ' '
-                                    self.print_empty_table()
+                                    self.print_score_table()
                                     break
 
                         self.total_score[player] = self.frame_total_score[frame][player]
@@ -338,15 +356,13 @@ class Frame(Player, BowlingGame):
                             self.frame_score[frame][player]['third throw'] = 'X'
                         if int(self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw']) == 10:
                             self.frame_score[frame][player]['second throw'] = '/'
-                        self.print_empty_table()
+                        self.print_score_table()
 
         return self.frame_score
 
+if __name__=='__main__':
 
+    player = Frame()
 
-
-player = Frame()
-
-
-player.count_frame_score()
+    player.count_frame_score()
 
