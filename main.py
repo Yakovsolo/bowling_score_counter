@@ -1,8 +1,7 @@
-from os import  system
 import logging
+from os import  system
 
 logging.basicConfig(level=logging.DEBUG,filename='data.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
-
 
 class BowlingGame:
 
@@ -37,6 +36,7 @@ class Player(BowlingGame):
     def input_player_names(self) -> list:
         for number in range(self.number_of_players):
             player_name = input(f"PLease input {self.list_of_numbers[number]}'s name: ").upper()
+            logging.info(f"The {self.list_of_numbers[number]}'s name is: {player_name}")
             if len(player_name) > 3:
                 player_name = player_name[0:3]
             self.players_list.append(player_name)
@@ -64,7 +64,6 @@ class Frame(Player, BowlingGame):
     def get_frame_score(self) -> dict:
         frame_score = {frame: {player: {throws: '0' for throws in self.list_of_throws}
                                for player in self.players_list} for frame in self.list_of_frames}
-
         return frame_score
 
     def get_frame_total_score(self) -> dict:
@@ -150,10 +149,7 @@ class Frame(Player, BowlingGame):
             for player in self.players_list:
                 count = 0
                 for throw in self.list_of_throws:
-
                     self.frame_score[frame][player][throw] = int(input(f'Enter {self.frames[frame-1]} {player} {throw} score: '))
-                    # try 
-
                     self.frame_total_score[frame][player] = self.frame_score[frame][player][throw]
 
                     if frame == 1:
@@ -167,7 +163,6 @@ class Frame(Player, BowlingGame):
 
                         elif int(self.frame_score[frame][player]['first throw']) != 10 and int(self.frame_score[frame][player]['first throw']) + int(
                             self.frame_score[frame][player]['second throw']) == 10:
-
                             self.frame_total_score[frame][player] = int(
                                 self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
                             self.total_score[player] = self.frame_total_score[frame][player]
@@ -208,7 +203,6 @@ class Frame(Player, BowlingGame):
                             break
 
                         elif int(self.frame_score[frame][player]['first throw']) != 10:
-
                             self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(
                                 self.frame_score[frame][player]['first throw']) + int(self.frame_score[frame][player]['second throw'])
                             if self.frame_score[frame][player]['first throw'] + int(self.frame_score[frame][player]['second throw']) == 10:
@@ -227,8 +221,7 @@ class Frame(Player, BowlingGame):
                             count += 1
                             if count == 2:
                                 break
-                            count += 1
-
+                            
                     elif 2 < frame < 10:
                         print(f'frame {frame}')
 
@@ -264,7 +257,6 @@ class Frame(Player, BowlingGame):
                             break
 
                         elif int(self.frame_score[frame][player]['first throw']) != 10:
-
                             self.frame_total_score[frame][player] = self.frame_total_score[frame-1][player] + int(self.frame_score[frame][player]['first throw']) + int(
                                 self.frame_score[frame][player]['second throw'])
                             if self.frame_score[frame][player]['first throw'] + int(self.frame_score[frame][player]['second throw']) == 10:
@@ -348,6 +340,7 @@ class Frame(Player, BowlingGame):
                                     break
 
                         self.total_score[player] = self.frame_total_score[frame][player]
+                        
                         if int(self.frame_score[frame][player]['first throw']) == 10:
                             self.frame_score[frame][player]['first throw'] = 'X'
                         if int(self.frame_score[frame][player]['second throw']) == 10:
